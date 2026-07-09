@@ -68,9 +68,9 @@
     Sections
 </x-dropdown-link>
 
-                                            <x-dropdown-link href="#">
-                                                Subjects
-                                            </x-dropdown-link>
+                                            <x-dropdown-link :href="route('subjects.index')">
+    Subjects
+</x-dropdown-link>
 
                                             <form method="POST" action="{{ route('classes.delete', $class->id) }}">
     @csrf
