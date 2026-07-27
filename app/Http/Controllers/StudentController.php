@@ -11,9 +11,12 @@ class StudentController extends Controller
 {
     // ================= INDEX =================
 
-   public function index()
+  public function index()
 {
-    $students = Student::with(['studentClass', 'section'])->get();
+    $students = Student::with([
+        'studentClass.fees',
+        'section'
+    ])->get();
 
     return view('student.index', compact('students'));
 }
@@ -44,8 +47,10 @@ public function store(Request $request)
 
     public function show(Student $student)
 {
-    $student->load(['studentClass', 'section']);
-
+   $student->load([
+    'studentClass',
+    'section'
+]);
     return view('student.show', compact('student'));
 }
 

@@ -7,7 +7,6 @@
     </x-slot>
 
     <div class="py-8">
-
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             <div class="bg-white shadow-md rounded-lg">
@@ -38,62 +37,61 @@
 
                             @foreach($classes as $class)
 
-                            <tr class="hover:bg-gray-50">
+                                <tr class="hover:bg-gray-50">
 
-                                <td class="border px-6 py-3">
-                                    {{ $loop->iteration }}
-                                </td>
+                                    <td class="border px-6 py-3">
+                                        {{ $loop->iteration }}
+                                    </td>
 
-                                <td class="border px-6 py-3">
-                                    {{ $class->class_name }}
-                                </td>
+                                    <td class="border px-6 py-3">
+                                        {{ $class->class_name }}
+                                    </td>
 
-                                <td class="border px-6 py-3 text-center">
+                                    <td class="border px-6 py-3 text-center">
 
-                                    <x-dropdown align="right" width="48">
+                                        <x-dropdown align="right" width="48">
 
-                                        <x-slot name="trigger">
-                                            <button class="text-xl">
-                                                ⚙️
-                                            </button>
-                                        </x-slot>
+                                            <x-slot name="trigger">
+                                                <button class="text-xl">
+                                                    ⚙️
+                                                </button>
+                                            </x-slot>
 
-                                        <x-slot name="content">
+                                            <x-slot name="content">
 
-                                            <x-dropdown-link :href="route('classes.edit', $class->id)">
-                                                Edit
-                                            </x-dropdown-link>
+                                                <x-dropdown-link :href="route('classes.edit', $class->id)">
+                                                    Edit
+                                                </x-dropdown-link>
 
-                                            <x-dropdown-link :href="route('sections.index', $class->id)">
-    Sections
-</x-dropdown-link>
+                                                <x-dropdown-link :href="route('sections.index', $class->id)">
+                                                    Sections
+                                                </x-dropdown-link>
 
-                                            <x-dropdown-link :href="route('subjects.index')">
-    Subjects
-</x-dropdown-link>
+                                                <x-dropdown-link :href="route('subjects.index')">
+                                                    Subjects
+                                                </x-dropdown-link>
 
-                                            <form method="POST" action="{{ route('classes.delete', $class->id) }}">
-    @csrf
-    @method('DELETE')
+                                                <form method="POST" action="{{ route('classes.delete', $class->id) }}">
+                                                    @csrf
+                                                    @method('DELETE')
 
-    <button
-        type="submit"
-        class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-        onclick="return confirm('Are you sure you want to delete this class?')">
+                                                    <button
+                                                        type="submit"
+                                                        class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                                                        onclick="return confirm('Are you sure you want to delete this class?')">
 
-        Delete
+                                                        Delete
 
-    </button>
+                                                    </button>
+                                                </form>
 
-</form>
+                                            </x-slot>
 
-                                        </x-slot>
+                                        </x-dropdown>
 
-                                    </x-dropdown>
+                                    </td>
 
-                                </td>
-
-                            </tr>
+                                </tr>
 
                             @endforeach
 
@@ -106,7 +104,6 @@
             </div>
 
         </div>
-
     </div>
 
 </x-app-layout>

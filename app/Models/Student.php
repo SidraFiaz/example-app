@@ -23,4 +23,11 @@ public function section()
 {
     return $this->belongsTo(Section::class, 'section_id');
 }
+
+public function feeCollections()
+{
+    return $this->hasMany(FeeCollection::class);
+}
+
+
 }

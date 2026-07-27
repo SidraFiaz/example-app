@@ -97,7 +97,7 @@
                     '<option value="">Select Section</option>';
 
                 if (classId !== "") {
-
+alert(classId);
                     fetch('/get-sections/' + classId)
                         .then(response => response.json())
                         .then(data => {

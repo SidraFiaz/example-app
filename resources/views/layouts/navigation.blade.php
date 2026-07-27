@@ -22,6 +22,14 @@
 
                      <x-nav-link :href="route('classes')" :active="request()->routeIs('classes')">
     {{ __('Classes') }}
+
+    <x-nav-link :href="route('fees.index')" :active="request()->routeIs('fees.*')">
+    {{ __('Fees') }}
+</x-nav-link>
+<x-nav-link :href="route('fee-collections.index')" :active="request()->routeIs('fee-collections.*')">
+    Fee Collections
+</x-nav-link>
+    
 </x-nav-link>
 
 
