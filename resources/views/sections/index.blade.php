@@ -40,19 +40,14 @@
                                 <td class="border p-2">{{ $section->section_name }}</td>
 
                                 <td class="border p-2">
-    <form action="{{ route('sections.delete', [$class_id, $section->id]) }}"
-      method="POST"
-      onsubmit="return confirm('Are you sure you want to delete this section?')">
-
-    @csrf
-    @method('DELETE')
-
-    <x-danger-button>
-        Delete
-    </x-danger-button>
-</form>
-    </form>
-</td>
+                                    <form action="{{ route('sections.delete', [$class_id, $section->id]) }}"
+                                          method="POST"
+                                          data-delete-confirm="Are you sure you want to delete this section?">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-action-delete />
+                                    </form>
+                                </td>
 
                             </tr>
                         @endforeach

@@ -9,7 +9,6 @@ class ClassesController extends Controller
 {
     public function index()
     {
-        // dd('sdf');
         $classes = StudentClass::all();
 
         return view('classes.index', compact('classes'));
@@ -22,11 +21,17 @@ class ClassesController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'class_name' => 'required|string|max:255',
+        ]);
+
         StudentClass::create([
             'class_name' => $request->class_name,
         ]);
 
-        return redirect()->route('classes');
+        return redirect()
+            ->route('classes')
+            ->with('success', 'Class created successfully.');
     }
 
     public function edit($id)

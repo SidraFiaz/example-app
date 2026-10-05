@@ -1,3 +1,99 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* =================================
+   Project Button Theme
+   Action buttons: black | Delete: red | Export: green
+================================= */
+
+@layer components {
+
+    .btn-black {
+        @apply bg-[#111827] text-white px-4 py-2 rounded-md font-medium;
+    }
+
+    .btn-black:hover {
+        @apply bg-gray-800;
+    }
+
+    /* Standardized Action column buttons */
+    .action-btn {
+        @apply inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium whitespace-nowrap transition;
+    }
+
+    .action-btn svg {
+        @apply w-4 h-4 shrink-0;
+    }
+
+    .action-btn-edit {
+        @apply bg-black text-white hover:bg-gray-800;
+    }
+
+    .action-btn-receive {
+        @apply bg-black text-white hover:bg-gray-800;
+    }
+
+    .action-btn-delete {
+        @apply bg-red-600 text-white hover:bg-red-700;
+    }
+
+    .action-btn-group {
+        @apply inline-flex flex-wrap items-center gap-2;
+    }
+
+}
+
+
+/* =================================
+   Blue / Bootstrap primary → black
+   (breadcrumb links excluded)
+================================= */
+
+button.bg-blue-600:not(:disabled),
+button.bg-blue-500:not(:disabled),
+button.bg-indigo-600:not(:disabled),
+a.bg-blue-600,
+a.bg-indigo-600,
+a.bg-blue-500,
+.btn-primary {
+    background-color: #111827 !important;
+    border-color: #111827 !important;
+    color: #ffffff !important;
+}
+
+button.bg-blue-600:not(:disabled):hover,
+button.bg-blue-500:not(:disabled):hover,
+button.bg-indigo-600:not(:disabled):hover,
+a.bg-blue-600:hover,
+a.bg-indigo-600:hover,
+a.bg-blue-500:hover,
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #1f2937 !important;
+    border-color: #1f2937 !important;
+    color: #ffffff !important;
+}
+
+.hover\:bg-blue-700:hover,
+.hover\:bg-blue-600:hover {
+    background-color: #1f2937 !important;
+}
+
+button.bg-blue-400:disabled,
+button[disabled].bg-blue-400 {
+    background-color: #9ca3af !important;
+    color: #ffffff !important;
+    cursor: not-allowed !important;
+}
+
+
+/* =================================
+   Smooth Buttons
+================================= */
+
+button:not(:disabled),
+a {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}

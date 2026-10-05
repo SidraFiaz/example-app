@@ -11,74 +11,198 @@ class StudentController extends Controller
 {
     // ================= INDEX =================
 
-  public function index()
-{
-    $students = Student::with([
-        'studentClass.fees',
-        'section'
-    ])->get();
+    public function index()
+    {
+        $students = Student::with([
+            'studentClass.classFees',
+            'section'
+        ])->get();
 
-    return view('student.index', compact('students'));
-}
+        return view('student.index', compact('students'));
+    }
+
+
     // ================= CREATE =================
-public function create()
-{
-    $classes = StudentClass::all();
-    $sections = Section::all();
 
-    return view('student.create', compact('classes', 'sections'));
-}
+    public function create()
+    {
+        $classes = StudentClass::all();
+        $sections = Section::all();
+
+        return view(
+            'student.create',
+            compact('classes', 'sections')
+        );
+    }
+
+
     // ================= STORE =================
-public function store(Request $request)
-{
-    Student::create([
-        'name'       => $request->name,
-        'age'        => $request->age,
-        'email'      => $request->email,
-        'gender'     => $request->gender,
-        'class_id'   => $request->class_id,
-        'section_id' => $request->section_id,
-    ]);
 
-    return back()->with('success', 'Student saved successfully!');
-}
+    public function store(Request $request)
+    {
+        $request->validate([
 
-    // ================= SHOW (VIEW) =================
+            'name' =>
+                'required|string|max:255',
+
+            'father_name' =>
+                'nullable|string|max:255',
+
+            'age' =>
+                'required|integer',
+
+            'email' =>
+                'required|email',
+
+            'gender' =>
+                'required',
+
+            'class_id' =>
+                'required|exists:classes,id',
+
+            'section_id' =>
+                'required|exists:sections,id',
+        ]);
+
+
+        Student::create([
+
+            'name' =>
+                $request->name,
+
+            'father_name' =>
+                $request->father_name,
+
+            'age' =>
+                $request->age,
+
+            'email' =>
+                $request->email,
+
+            'gender' =>
+                $request->gender,
+
+            'class_id' =>
+                $request->class_id,
+
+            'section_id' =>
+                $request->section_id,
+        ]);
+
+
+        return back()
+            ->with(
+                'success',
+                'Student saved successfully!'
+            );
+    }
+
+
+    // ================= SHOW =================
 
     public function show(Student $student)
-{
-   $student->load([
-    'studentClass',
-    'section'
-]);
-    return view('student.show', compact('student'));
-}
+    {
+        $student->load([
+            'studentClass.classFees',
+            'section',
+            'feeCollections.feeType',
+        ]);
+
+        $classes = StudentClass::orderBy('class_name')->get();
+        $sections = Section::orderBy('section_name')->get();
+
+        $classFee = $student->studentClass?->classFees?->first();
+
+        return view(
+            'student.show',
+            compact('student', 'classes', 'sections', 'classFee')
+        );
+    }
+
 
     // ================= EDIT =================
 
-   public function edit(Student $student)
-{
-    $classes = StudentClass::all();
-    $sections = Section::all();
+    public function edit(Student $student)
+    {
+        $classes = StudentClass::all();
+        $sections = Section::all();
 
-    return view('student.edit', compact('student', 'classes', 'sections'));
-}
+        return view(
+            'student.edit',
+            compact(
+                'student',
+                'classes',
+                'sections'
+            )
+        );
+    }
+
+
     // ================= UPDATE =================
 
-   public function update(Request $request, Student $student)
-{
-    $student->update([
-        'name'       => $request->name,
-        'age'        => $request->age,
-        'email'      => $request->email,
-        'gender'     => $request->gender,
-        'class_id'   => $request->class_id,
-        'section_id' => $request->section_id,
-    ]);
+    public function update(
+        Request $request,
+        Student $student
+    ) {
 
-    return redirect()->route('student.index')
-        ->with('success', 'Student updated successfully!');
-}
+        $request->validate([
+
+            'name' =>
+                'required|string|max:255',
+
+            'father_name' =>
+                'nullable|string|max:255',
+
+            'age' =>
+                'required|integer',
+
+            'email' =>
+                'required|email',
+
+            'gender' =>
+                'required',
+
+            'class_id' =>
+                'required|exists:classes,id',
+
+            'section_id' =>
+                'required|exists:sections,id',
+        ]);
+
+
+        $student->update([
+
+            'name' =>
+                $request->name,
+
+            'father_name' =>
+                $request->father_name,
+
+            'age' =>
+                $request->age,
+
+            'email' =>
+                $request->email,
+
+            'gender' =>
+                $request->gender,
+
+            'class_id' =>
+                $request->class_id,
+
+            'section_id' =>
+                $request->section_id,
+        ]);
+
+
+        return redirect()
+            ->route('student.index')
+            ->with(
+                'success',
+                'Student updated successfully!'
+            );
+    }
+
 
     // ================= DELETE =================
 
@@ -86,7 +210,11 @@ public function store(Request $request)
     {
         $student->delete();
 
-        return redirect()->route('student.index')
-            ->with('success', 'Student deleted successfully!');
+        return redirect()
+            ->route('student.index')
+            ->with(
+                'success',
+                'Student deleted successfully!'
+            );
     }
 }

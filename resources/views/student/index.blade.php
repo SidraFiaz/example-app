@@ -87,21 +87,23 @@
                                     {{ $student->section->section_name ?? 'N/A' }}
                                 </td>
 
+<td class="border border-gray-400 px-4 py-2">
 
-                               <td class="border border-gray-400 px-4 py-2">
+    @if($student->studentClass && $student->studentClass->classFees->count() > 0)
 
-    @if($student->studentClass && $student->studentClass->fee)
-        Rs. {{ number_format($student->studentClass->fee->amount) }}
+        Rs. {{ number_format($student->studentClass->classFees->first()->amount, 0) }}
+
     @else
+
         <span class="text-red-600">No Fee</span>
+
     @endif
 
 </td>
 
-
                                 <td class="border border-gray-400 px-4 py-2">
 
-                                    <div class="flex justify-center gap-2">
+                                    <div class="action-btn-group justify-center">
 
                                         <a href="{{ route('student.show', $student->id) }}">
                                             <x-secondary-button>
@@ -109,59 +111,19 @@
                                             </x-secondary-button>
                                         </a>
 
+                                        <x-action-edit :href="route('student.edit', $student->id)" />
 
-                                        <a href="{{ route('student.edit', $student->id) }}">
-                                            <x-primary-button>
-                                                Edit
-                                            </x-primary-button>
-                                        </a>
-
-
-                                        <x-danger-button
-                                            x-data=""
-                                            x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion-{{ $student->id }}')">
-                                            Delete
-                                        </x-danger-button>
-
-
-                                    </div>
-
-
-                                    <x-modal name="confirm-user-deletion-{{ $student->id }}" focusable>
-
-                                        <form method="POST"
+                                        <form
+                                            method="POST"
                                             action="{{ route('student.destroy', $student->id) }}"
-                                            class="p-6">
-
+                                            data-delete-confirm="Are you sure you want to delete this student?"
+                                        >
                                             @csrf
                                             @method('DELETE')
-
-
-                                            <h2 class="text-lg font-medium text-gray-900">
-                                                Are you sure you want to delete this student?
-                                            </h2>
-
-
-                                            <div class="mt-6 flex justify-end">
-
-
-                                                <x-secondary-button x-on:click="$dispatch('close')">
-                                                    Cancel
-                                                </x-secondary-button>
-
-
-                                                <x-danger-button class="ms-3">
-                                                    Delete
-                                                </x-danger-button>
-
-
-                                            </div>
-
-
+                                            <x-action-delete />
                                         </form>
 
-                                    </x-modal>
-
+                                    </div>
 
                                 </td>
 

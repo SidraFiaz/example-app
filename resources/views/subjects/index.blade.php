@@ -3,6 +3,14 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Subjects') }}
+            @if(request('class_id'))
+                @php
+                    $selectedClass = $classes->firstWhere('id', (int) request('class_id'));
+                @endphp
+                @if($selectedClass)
+                    <span class="text-gray-500 font-normal">— {{ $selectedClass->class_name }}</span>
+                @endif
+            @endif
         </h2>
     </x-slot>
 
@@ -15,30 +23,50 @@
                 </div>
             @endif
 
-            <!-- Search & Add Button -->
-            <div class="flex justify-between items-center mb-6">
+            <!-- Search / Class Filter / Add -->
+            <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-6">
 
-                <form action="{{ route('subjects.index') }}" method="GET" class="flex items-center gap-3">
+                <form action="{{ route('subjects.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
+
+                    <select
+                        name="class_id"
+                        class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onchange="this.form.submit()"
+                    >
+                        <option value="">All Classes</option>
+                        @foreach($classes as $class)
+                            <option value="{{ $class->id }}" {{ (string) request('class_id') === (string) $class->id ? 'selected' : '' }}>
+                                {{ $class->class_name }}
+                            </option>
+                        @endforeach
+                    </select>
 
                     <input
                         type="text"
                         name="search"
                         value="{{ request('search') }}"
                         placeholder="Search Subject..."
-                        class="border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        class="border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
 
-                   <button
-    type="submit"
-    class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg">
-    Search
-</button>
+                    <button
+                        type="submit"
+                        class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg"
+                    >
+                        Search
+                    </button>
 
+                    @if(request()->filled('class_id') || request()->filled('search'))
+                        <a href="{{ route('subjects.index') }}" class="text-sm text-gray-600 hover:text-gray-900 underline">
+                            Clear
+                        </a>
+                    @endif
                 </form>
 
-                <a href="{{ route('subjects.create') }}"
-   class="bg-black hover:bg-gray-800 text-white font-semibold px-5 py-2 rounded-lg shadow transition duration-200">
-    + Add Subject
-</a>
+                <a href="{{ route('subjects.create', array_filter(['class_id' => request('class_id')])) }}"
+                   class="bg-black hover:bg-gray-800 text-white font-semibold px-5 py-2 rounded-lg shadow transition duration-200 inline-flex justify-center">
+                    + Add Subject
+                </a>
             </div>
 
             <!-- Table -->
@@ -49,9 +77,9 @@
                     <thead>
                         <tr class="bg-black text-white">
                             <th class="border px-4 py-3 text-center">ID</th>
-<th class="border px-4 py-3 text-center">Subject Name</th>
-<th class="border px-4 py-3 text-center">Class</th>
-<th class="border px-4 py-3 text-center">Actions</th>
+                            <th class="border px-4 py-3 text-center">Subject Name</th>
+                            <th class="border px-4 py-3 text-center">Class</th>
+                            <th class="border px-4 py-3 text-center">Actions</th>
                         </tr>
                     </thead>
 
@@ -61,37 +89,31 @@
                             <tr class="hover:bg-gray-100 transition duration-200">
 
                                 <td class="border px-4 py-3 text-center">
-                                   {{ $loop->iteration }}
+                                   {{ $subjects->firstItem() + $loop->index }}
                                 </td>
 
                                 <td class="border px-4 py-3 text-center">
-    {{ $subject->subject_name }}
-</td>
+                                    {{ $subject->subject_name }}
+                                </td>
 
-<td class="border px-4 py-3 text-center">
-    {{ $subject->studentClass->class_name ?? 'N/A' }}
-</td>
+                                <td class="border px-4 py-3 text-center">
+                                    {{ $subject->studentClass->class_name ?? 'N/A' }}
+                                </td>
 
                                 <td class="border px-4 py-3 text-center">
 
-                                    <div class="flex justify-center items-center gap-3">
+                                    <div class="action-btn-group justify-center">
 
-                                        <a href="{{ route('subjects.edit', $subject->id ) }}"
-   class="bg-black hover:bg-gray-800 text-white font-medium px-4 py-2 rounded-lg transition duration-200">
-    Edit
-</a>
+                                        <x-action-edit :href="route('subjects.edit', $subject->id)" />
 
-                                        <form action="{{ route('subjects.destroy', $subject->id) }}" method="POST">
+                                        <form action="{{ route('subjects.destroy', $subject->id) }}" method="POST"
+                                            data-delete-confirm="Are you sure you want to delete this subject?">
                                             @csrf
                                             @method('DELETE')
-
-                                            <button
-                                                type="submit"
-                                                onclick="return confirm('Delete this subject?')"
-                                                class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition duration-200">
-                                                Delete
-                                            </button>
-
+                                            @if(request('class_id'))
+                                                <input type="hidden" name="class_id" value="{{ request('class_id') }}">
+                                            @endif
+                                            <x-action-delete />
                                         </form>
 
                                     </div>
@@ -103,8 +125,12 @@
                         @empty
 
                             <tr>
-                                <td colspan="3" class="border py-6 text-center text-gray-500">
-                                    No Subjects Found
+                                <td colspan="4" class="border py-6 text-center text-gray-500">
+                                    @if(request('class_id'))
+                                        No subjects found for this class.
+                                    @else
+                                        No Subjects Found
+                                    @endif
                                 </td>
                             </tr>
 

@@ -10,6 +10,15 @@ class Fee extends Model
         'class_id',
         'fee_type_id',
         'amount',
+        'description',
+        'fee_type',
+        'discount_type',
+        'discount_value',
+        'is_adjustment',
+    ];
+
+    protected $casts = [
+        'is_adjustment' => 'boolean',
     ];
 
     public function studentClass()

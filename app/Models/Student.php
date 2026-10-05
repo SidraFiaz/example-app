@@ -8,6 +8,7 @@ class Student extends Model
 {
     protected $fillable = [
         'name',
+        'father_name',
         'age',
         'email',
         'gender',
@@ -19,15 +20,24 @@ class Student extends Model
     {
         return $this->belongsTo(StudentClass::class, 'class_id');
     }
-public function section()
-{
-    return $this->belongsTo(Section::class, 'section_id');
-}
 
-public function feeCollections()
-{
-    return $this->hasMany(FeeCollection::class);
-}
+    public function section()
+    {
+        return $this->belongsTo(Section::class, 'section_id');
+    }
 
+    public function feeCollections()
+    {
+        return $this->hasMany(FeeCollection::class);
+    }
 
+    public function transports()
+    {
+        return $this->hasMany(Transport::class);
+    }
+
+    public function parentMeetings()
+    {
+        return $this->hasMany(ParentMeeting::class);
+    }
 }

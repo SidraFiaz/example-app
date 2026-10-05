@@ -7,30 +7,26 @@ use Illuminate\Http\Request;
 
 class FeeTypeController extends Controller
 {
-    public function index()
+    /**
+     * Fee Types shown on the Fee Types management page.
+     */
+    private const MANAGED_FEE_TYPES = ['Fee', 'Discount'];
+
+    public function index(Request $request)
     {
-        $feeTypes = FeeType::latest()->get();
+        $this->ensureManagedFeeTypesExist();
 
-        return view('fee-types.index', compact('feeTypes'));
-    }
+        $search = trim((string) $request->get('search', ''));
 
-    public function create()
-    {
-        return view('fee-types.create');
-    }
+        $feeTypes = FeeType::query()
+            ->whereIn('fee_name', self::MANAGED_FEE_TYPES)
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where('fee_name', 'like', '%'.$search.'%');
+            })
+            ->orderByRaw("FIELD(fee_name, 'Fee', 'Discount')")
+            ->get();
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'fee_name' => 'required|string|max:255',
-        ]);
-
-        FeeType::create([
-            'fee_name' => $request->fee_name,
-        ]);
-
-        return redirect()->route('fee-types.index')
-            ->with('success', 'Fee Type Added Successfully.');
+        return view('fee-types.index', compact('feeTypes', 'search'));
     }
 
     public function edit(FeeType $fee_type)
@@ -48,15 +44,21 @@ class FeeTypeController extends Controller
             'fee_name' => $request->fee_name,
         ]);
 
-        return redirect()->route('fee-types.index')
+        return redirect()
+            ->route('fee-types.index')
             ->with('success', 'Fee Type Updated Successfully.');
     }
 
-    public function destroy(FeeType $fee_type)
+    private function ensureManagedFeeTypesExist(): void
     {
-        $fee_type->delete();
+        FeeType::firstOrCreate(
+            ['fee_name' => 'Fee'],
+            ['is_adjustment' => false]
+        );
 
-        return redirect()->route('fee-types.index')
-            ->with('success', 'Fee Type Deleted Successfully.');
+        FeeType::firstOrCreate(
+            ['fee_name' => 'Discount'],
+            ['is_adjustment' => true]
+        );
     }
 }

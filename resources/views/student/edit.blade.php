@@ -15,16 +15,25 @@
 
                     <!-- Name -->
                     <div class="mb-4">
-                        <label>Name</label>
+                        <label class="block mb-1">Name</label>
                         <input type="text"
                                name="name"
                                value="{{ $student->name }}"
                                class="w-70 rounded border-gray-300">
                     </div>
 
+                    <!-- Father Name -->
+                    <div class="mb-4">
+                        <label class="block mb-1">Father Name</label>
+                        <input type="text"
+                               name="father_name"
+                               value="{{ $student->father_name }}"
+                               class="w-70 rounded border-gray-300">
+                    </div>
+
                     <!-- Age -->
                     <div class="mb-4">
-                        <label>Age</label>
+                        <label class="block mb-1">Age</label>
                         <input type="number"
                                name="age"
                                value="{{ $student->age }}"
@@ -33,7 +42,7 @@
 
                     <!-- Email -->
                     <div class="mb-4">
-                        <label>Email</label>
+                        <label class="block mb-1">Email</label>
                         <input type="email"
                                name="email"
                                value="{{ $student->email }}"
@@ -42,17 +51,24 @@
 
                     <!-- Gender -->
                     <div class="mb-4">
-                        <label>Gender</label>
+                        <label class="block mb-1">Gender</label>
 
                         <select name="gender" class="w-70 rounded border-gray-300">
-                            <option value="Male" {{ $student->gender == 'Male' ? 'selected' : '' }}>Male</option>
-                            <option value="Female" {{ $student->gender == 'Female' ? 'selected' : '' }}>Female</option>
+                            <option value="Male"
+                                {{ $student->gender == 'Male' ? 'selected' : '' }}>
+                                Male
+                            </option>
+
+                            <option value="Female"
+                                {{ $student->gender == 'Female' ? 'selected' : '' }}>
+                                Female
+                            </option>
                         </select>
                     </div>
 
                     <!-- Class -->
                     <div class="mb-4">
-                        <label>Class</label>
+                        <label class="block mb-1">Class</label>
 
                         <select name="class_id" class="w-70 rounded border-gray-300">
                             <option value="">Select Class</option>
@@ -68,7 +84,7 @@
 
                     <!-- Section -->
                     <div class="mb-4">
-                        <label>Section</label>
+                        <label class="block mb-1">Section</label>
 
                         <select name="section_id" class="w-70 rounded border-gray-300">
                             <option value="">Select Section</option>
@@ -82,6 +98,7 @@
                         </select>
                     </div>
 
+                    <!-- Update Button -->
                     <x-primary-button>
                         Update Student
                     </x-primary-button>

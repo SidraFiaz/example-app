@@ -27,7 +27,10 @@
                             <option value="">-- Select Class --</option>
 
                             @foreach($classes as $class)
-                                <option value="{{ $class->id }}">
+                                <option
+                                    value="{{ $class->id }}"
+                                    {{ (string) old('class_id', request('class_id')) === (string) $class->id ? 'selected' : '' }}
+                                >
                                     {{ $class->class_name }}
                                 </option>
                             @endforeach
@@ -61,7 +64,7 @@
     class="bg-black hover:bg-gray-800 text-white font-semibold px-5 py-2 rounded-lg shadow transition duration-200">
     Save
 </button>
-                    <a href="{{ route('subjects.index') }}"
+                    <a href="{{ route('subjects.index', array_filter(['class_id' => old('class_id', request('class_id'))])) }}"
                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded ml-2">
                         Cancel
                     </a>

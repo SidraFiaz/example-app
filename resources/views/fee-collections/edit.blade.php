@@ -1,173 +1,101 @@
 <x-app-layout>
 
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">
-            Edit Fee Collection
-        </h2>
+
+        <div>
+
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Receive Fee
+            </h2>
+
+            <div class="text-sm text-gray-500 mt-1">
+
+                <a href="{{ route('dashboard') }}"
+                   class="text-blue-600 hover:underline">
+                    Home
+                </a>
+
+                <span class="mx-1">/</span>
+
+                <span>Edit Fee</span>
+
+            </div>
+
+        </div>
+
     </x-slot>
 
-    <div class="py-12">
 
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-4">
 
-            <div class="bg-white shadow rounded-lg p-6">
+        <div class="max-w-full mx-auto sm:px-6 lg:px-8">
 
-                @if ($errors->any())
-                    <div class="mb-6 p-4 bg-red-100 border border-red-300 rounded text-red-700">
-                        <ul class="list-disc pl-5">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
 
-                <form action="{{ route('fee-collections.update', $fee_collection->id) }}" method="POST">
+                <div class="p-8">
 
-                    @csrf
-                    @method('PUT')
+                    <form
+                        method="POST"
+                        action="{{ route('fee-collections.update', $fee_collection->id) }}"
+                    >
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @csrf
 
-                        <!-- Student -->
-                        <div>
-                            <x-input-label value="Student" />
+                        @method('PUT')
 
-                            <select
-                                name="student_id"
-                                id="student"
-                                class="mt-2 block w-full border-gray-300 rounded-md shadow-sm"
-                                required>
 
-                                @foreach($students as $student)
+                        {{-- FEE AMOUNT --}}
 
-                                    <option
-                                        value="{{ $student->id }}"
-                                        data-class="{{ $student->studentClass->class_name ?? '' }}"
-                                        data-fee="{{ $student->studentClass->fee->amount ?? 0 }}"
-                                        {{ $fee_collection->student_id == $student->id ? 'selected' : '' }}>
+                        <div class="max-w-md">
 
-                                        {{ $student->name }}
-
-                                    </option>
-
-                                @endforeach
-
-                            </select>
-
-                        </div>
-
-                        <!-- Class -->
-                        <div>
-
-                            <x-input-label value="Class" />
-
-                            <input
-                                type="text"
-                                id="class_name"
-                                value="{{ $fee_collection->student->studentClass->class_name }}"
-                                class="mt-2 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100"
-                                readonly>
-
-                        </div>
-
-                        <!-- Amount -->
-                        <div>
-
-                            <x-input-label value="Amount" />
+                            <label
+                                for="amount"
+                                class="block text-sm text-gray-700 mb-2"
+                            >
+                                Fee Amount<span class="text-red-500">*</span>
+                            </label>
 
                             <input
                                 type="number"
                                 name="amount"
                                 id="amount"
-                                value="{{ $fee_collection->amount }}"
-                                class="mt-2 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100"
-                                readonly>
+                                value="{{ old('amount', $fee_collection->amount) }}"
+                                min="0"
+                                step="0.01"
+                                required
+                                class="w-full h-11 border border-gray-300 rounded-md px-3 text-sm focus:border-blue-500 focus:ring-blue-500"
+                            >
+
+                            @error('amount')
+                                <p class="text-red-500 text-sm mt-1">
+                                    {{ $message }}
+                                </p>
+                            @enderror
 
                         </div>
 
-                        <!-- Payment Date -->
-                        <div>
 
-                            <x-input-label value="Payment Date" />
+                        {{-- UPDATE BUTTON --}}
 
-                            <input
-                                type="date"
-                                name="payment_date"
-                                value="{{ $fee_collection->payment_date }}"
-                                class="mt-2 block w-full border-gray-300 rounded-md shadow-sm"
-                                required>
+                        <div class="mt-6">
 
-                        </div>
-
-                        <!-- Status -->
-                        <div>
-
-                            <x-input-label value="Status" />
-
-                            <select
-                                name="status"
-                                class="mt-2 block w-full border-gray-300 rounded-md shadow-sm">
-
-                                <option value="Paid"
-                                    {{ $fee_collection->status == 'Paid' ? 'selected' : '' }}>
-                                    Paid
-                                </option>
-
-                                <option value="Unpaid"
-                                    {{ $fee_collection->status == 'Unpaid' ? 'selected' : '' }}>
-                                    Unpaid
-                                </option>
-
-                            </select>
+                            <button
+                                type="submit"
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-md text-sm"
+                            >
+                                Update Fee
+                            </button>
 
                         </div>
 
-                        <!-- Remarks -->
-                        <div>
+                    </form>
 
-                            <x-input-label value="Remarks" />
-
-                            <textarea
-                                name="remarks"
-                                rows="3"
-                                class="mt-2 block w-full border-gray-300 rounded-md shadow-sm resize-none">{{ $fee_collection->remarks }}</textarea>
-
-                        </div>
-
-                    </div>
-
-                    <div class="mt-8 flex justify-end gap-3">
-
-                        <a href="{{ route('fee-collections.index') }}">
-                            <x-secondary-button>
-                                Cancel
-                            </x-secondary-button>
-                        </a>
-
-                        <x-primary-button>
-                            Update Fee
-                        </x-primary-button>
-
-                    </div>
-
-                </form>
+                </div>
 
             </div>
 
         </div>
 
     </div>
-
-    <script>
-        document.getElementById('student').addEventListener('change', function () {
-
-            let option = this.options[this.selectedIndex];
-
-            document.getElementById('class_name').value = option.dataset.class;
-            document.getElementById('amount').value = option.dataset.fee;
-
-        });
-    </script>
 
 </x-app-layout>

@@ -62,7 +62,7 @@
     Update
 </button>
 
-                        <a href="{{ route('subjects.index') }}"
+                        <a href="{{ route('subjects.index', array_filter(['class_id' => $subject->class_id])) }}"
                            class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
                             Cancel
                         </a>

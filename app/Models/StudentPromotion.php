@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class StudentPromotion extends Model
+{
+    protected $fillable = [
+        'student_id',
+        'from_class_id',
+        'to_class_id',
+        'promotion_date',
+    ];
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
+
+    public function fromClass()
+    {
+        return $this->belongsTo(StudentClass::class, 'from_class_id');
+    }
+
+    public function toClass()
+    {
+        return $this->belongsTo(StudentClass::class, 'to_class_id');
+    }
+}

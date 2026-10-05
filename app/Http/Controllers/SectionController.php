@@ -51,7 +51,9 @@ class SectionController extends Controller
     // Return sections according to selected class (AJAX)
     public function getSections($class_id)
     {
-        $sections = Section::where('class_id', $class_id)->get();
+        $sections = Section::where('class_id', $class_id)
+            ->orderBy('section_name')
+            ->get(['id', 'class_id', 'section_name']);
 
         return response()->json($sections);
     }

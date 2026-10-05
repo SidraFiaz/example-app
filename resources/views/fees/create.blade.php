@@ -1,19 +1,41 @@
 <x-app-layout>
 
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800">
-            Add Fee
-        </h2>
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-900">
+                Create Fee
+            </h2>
+            <div class="flex items-center gap-2 text-sm mt-1">
+                <a href="{{ route('dashboard') }}" class="text-blue-600 hover:text-blue-800">
+                    Home
+                </a>
+                <span class="text-gray-400">/</span>
+                <span class="text-gray-500">Create</span>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+    @php
+        $selectedFeeTypeId = old('fee_type_id');
+        $selectedFeeTypeName = '';
 
-            <div class="bg-white p-6 shadow rounded-lg">
+        if ($selectedFeeTypeId) {
+            $selectedFeeTypeName = optional(
+                $feeTypes->firstWhere('id', (int) $selectedFeeTypeId)
+            )->fee_name ?? '';
+        }
+
+        $selectedFeeTypeKey = strtolower(trim($selectedFeeTypeName));
+    @endphp
+
+    <div class="py-6 bg-gray-50 min-h-[calc(100vh-8rem)]">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="bg-white rounded-2xl shadow-[0_1px_8px_rgba(0,0,0,0.06)] p-6 sm:p-10">
 
                 @if ($errors->any())
-                    <div class="mb-4 text-red-600">
-                        <ul>
+                    <div class="mb-6 px-4 py-3 rounded-md bg-red-100 text-red-700 text-sm">
+                        <ul class="list-disc ml-5">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -21,94 +43,334 @@
                     </div>
                 @endif
 
-                <form action="{{ route('fees.store') }}" method="POST">
-
+                <form action="{{ route('fees.store') }}" method="POST" id="feeForm">
                     @csrf
 
-                    <!-- Class -->
-                    <div class="mb-4">
-                        <x-input-label value="Select Class" />
+                    @if($selectedClass)
+                        <input type="hidden" name="class_id" value="{{ old('class_id', $selectedClass) }}">
+                    @endif
 
-                        <select name="class_id"
-                            class="mt-2 block w-full border-gray-300 rounded-md shadow-sm"
-                            required>
+                    <div class="fee-form-grid">
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                                Fee Description <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="description"
+                                name="description"
+                                value="{{ old('description') }}"
+                                class="fee-form-control"
+                                required
+                            >
+                            @error('description')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                            <option value="">Select Class</option>
+                        <div>
+                            <label for="fee_type_id" class="block text-sm font-medium text-gray-700 mb-2">
+                                Fee Type <span class="text-red-500">*</span>
+                            </label>
+                            <select
+                                name="fee_type_id"
+                                id="fee_type_id"
+                                class="fee-form-control"
+                                required
+                            >
+                                <option value="">Select Fee Type</option>
+                                @foreach($feeTypes as $feeType)
+                                    <option
+                                        value="{{ $feeType->id }}"
+                                        data-fee-name="{{ strtolower(trim($feeType->fee_name)) }}"
+                                        {{ (string) old('fee_type_id') === (string) $feeType->id ? 'selected' : '' }}
+                                    >
+                                        {{ $feeType->fee_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('fee_type_id')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
 
-                            @foreach($classes as $class)
-                                <option value="{{ $class->id }}"
-                                    {{ isset($selectedClass) && $selectedClass == $class->id ? 'selected' : '' }}>
-                                    {{ $class->class_name }}
+                    <div
+                        id="feeFields"
+                        class="fee-form-grid fee-conditional-section"
+                        style="{{ $selectedFeeTypeKey === 'fee' ? '' : 'display: none;' }}"
+                    >
+                        <div>
+                            <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+                                Fee Amount <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                id="amount"
+                                name="amount"
+                                value="{{ old('amount') }}"
+                                step="any"
+                                min="0"
+                                class="fee-form-control"
+                                @if($selectedFeeTypeKey !== 'fee') disabled @endif
+                                @if($selectedFeeTypeKey === 'fee') required @endif
+                            >
+                            @error('amount')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div
+                        id="discountFields"
+                        class="fee-form-grid fee-conditional-section"
+                        style="{{ $selectedFeeTypeKey === 'discount' ? '' : 'display: none;' }}"
+                    >
+                        <div>
+                            <label for="discount_type" class="block text-sm font-medium text-gray-700 mb-2">
+                                Discount Type <span class="text-red-500">*</span>
+                            </label>
+                            <select
+                                name="discount_type"
+                                id="discount_type"
+                                class="fee-form-control"
+                                @if($selectedFeeTypeKey !== 'discount') disabled @endif
+                                @if($selectedFeeTypeKey === 'discount') required @endif
+                            >
+                                <option value="">Select Type</option>
+                                <option value="amount" {{ old('discount_type') === 'amount' || old('discount_type') === 'fixed' ? 'selected' : '' }}>
+                                    Amount
                                 </option>
-                            @endforeach
-
-                        </select>
-                    </div>
-
-                    <!-- Fee Type -->
-                    <div class="mb-4">
-                        <x-input-label value="Fee Type" />
-
-                        <select
-                            name="fee_type_id"
-                            id="fee_type_id"
-                            class="mt-2 block w-full border-gray-300 rounded-md shadow-sm"
-                            required>
-
-                            <option value="">Select Fee Type</option>
-
-                            @foreach($feeTypes as $feeType)
-                                <option value="{{ $feeType->id }}">
-                                    {{ $feeType->fee_name }}
+                                <option value="percentage" {{ old('discount_type') === 'percentage' ? 'selected' : '' }}>
+                                    Percentage
                                 </option>
-                            @endforeach
+                            </select>
+                            @error('discount_type')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                        </select>
+                        <div>
+                            <label for="discount_value" class="block text-sm font-medium text-gray-700 mb-2">
+                                Discount Value <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                id="discount_value"
+                                name="discount_value"
+                                value="{{ old('discount_value') }}"
+                                step="0.01"
+                                min="0"
+                                class="fee-form-control"
+                                @if($selectedFeeTypeKey !== 'discount') disabled @endif
+                                @if($selectedFeeTypeKey === 'discount') required @endif
+                            >
+                            @error('discount_value')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
 
-                    <!-- Amount -->
-                    <div class="mb-4">
-                        <x-input-label value="Amount" />
-
-                        <x-text-input
-                            id="amount"
-                            type="number"
-                            name="amount"
-                            class="block mt-2 w-full"
-                            placeholder="Enter Amount"
-                            required
-                        />
+                    <div class="fee-form-adjustment">
+                        <input type="hidden" name="is_adjustment" value="0">
+                        <label for="is_adjustment" class="fee-form-adjustment-label">
+                            <input
+                                type="checkbox"
+                                id="is_adjustment"
+                                name="is_adjustment"
+                                value="1"
+                                class="fee-form-adjustment-checkbox"
+                                {{ (string) old('is_adjustment') === '1' ? 'checked' : '' }}
+                            >
+                            <span>Is Adjustment</span>
+                        </label>
                     </div>
 
-                    <div class="mt-6">
-                        <x-primary-button>
-                            Save Fee
-                        </x-primary-button>
+                    <div class="fee-form-actions">
+                        <div class="fee-form-actions-right">
+                            <a href="{{ route('fees.index') }}" class="fee-form-cancel">Cancel</a>
+                            <button type="submit" class="fee-form-save">Save</button>
+                        </div>
                     </div>
-
                 </form>
 
             </div>
-
         </div>
     </div>
 
+    <style>
+        .fee-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 28px;
+            row-gap: 24px;
+        }
+
+        .fee-conditional-section {
+            margin-top: 24px;
+        }
+
+        .fee-form-control {
+            display: block;
+            width: 100%;
+            height: 44px;
+            box-sizing: border-box;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #374151;
+            font-size: 14px;
+            padding: 0 12px;
+        }
+
+        .fee-form-control:focus {
+            outline: none;
+            border-color: #9ca3af;
+        }
+
+        select.fee-form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 36px;
+        }
+
+        .fee-form-adjustment {
+            margin-top: 28px;
+        }
+
+        .fee-form-adjustment-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .fee-form-adjustment-checkbox {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            accent-color: #111827;
+            cursor: pointer;
+        }
+
+        .fee-form-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 28px;
+            margin-top: 40px;
+        }
+
+        .fee-form-actions-right {
+            grid-column: 2;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .fee-form-cancel {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 96px;
+            height: 40px;
+            padding: 0 20px;
+            border-radius: 8px;
+            background: #e5e7eb;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .fee-form-cancel:hover {
+            background: #d1d5db;
+        }
+
+        .fee-form-save {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 96px;
+            height: 40px;
+            padding: 0 20px;
+            border: 0;
+            border-radius: 8px;
+            background: #111827;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .fee-form-save:hover {
+            background: #1f2937;
+        }
+
+        @media (max-width: 768px) {
+            .fee-form-grid,
+            .fee-form-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .fee-form-actions-right {
+                grid-column: 1;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener('DOMContentLoaded', function () {
+            const feeTypeSelect = document.getElementById('fee_type_id');
+            const feeFields = document.getElementById('feeFields');
+            const discountFields = document.getElementById('discountFields');
 
-            const feeType = document.getElementById("fee_type_id");
-            const amount = document.getElementById("amount");
-
-            feeType.addEventListener("change", function () {
-
-                if (this.options[this.selectedIndex].text === "Monthly Fee") {
-                    amount.placeholder = "Enter Monthly Fee";
-                } else {
-                    amount.placeholder = "Enter Fee Amount";
+            function setSectionEnabled(sectionEl, enabled, requiredSelectors) {
+                if (!sectionEl) {
+                    return;
                 }
 
-            });
+                sectionEl.style.display = enabled ? '' : 'none';
 
+                sectionEl.querySelectorAll('input, select, textarea').forEach(function (el) {
+                    el.disabled = !enabled;
+
+                    if (requiredSelectors.indexOf(el.id) !== -1) {
+                        if (enabled) {
+                            el.setAttribute('required', 'required');
+                        } else {
+                            el.removeAttribute('required');
+                        }
+                    }
+                });
+            }
+
+            function syncConditionalFields() {
+                if (!feeTypeSelect) {
+                    return;
+                }
+
+                const selected = feeTypeSelect.options[feeTypeSelect.selectedIndex];
+                const feeName = selected ? (selected.getAttribute('data-fee-name') || '') : '';
+
+                setSectionEnabled(feeFields, feeName === 'fee', ['amount']);
+                setSectionEnabled(discountFields, feeName === 'discount', ['discount_type', 'discount_value']);
+            }
+
+            if (feeTypeSelect) {
+                feeTypeSelect.addEventListener('change', syncConditionalFields);
+                syncConditionalFields();
+            }
         });
     </script>
 
